@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}AI 宠物识别 - 萌宠之家{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>🔍 AI 宠物识别</h1>
+    <p>上传照片，AI 自动识别品种</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- 上传区 -->
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📷</div>
+        上传宠物照片
+      </div>
+      <div class="card-body">
+        {% if preview %}
+        <div class="text-center mb-3">
+          <img src="{{ url_for('static', filename='uploads/' + preview) }}" style="max-width:100%;max-height:300px;border-radius:var(--radius-md);box-shadow:var(--shadow-sm);">
+        </div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+          <div class="mb-3">
+            <input type="file" name="photo" class="form-control" accept="image/*" required id="fileInput" onchange="previewFile()">
+            <div class="form-text">支持 JPG、PNG 格式，文件小于 16MB</div>
+          </div>
+          <div id="previewBox" class="mb-3" style="display:none;">
+            <img id="previewImg" style="max-width:100%;max-height:240px;border-radius:var(--radius-md);display:block;">
+          </div>
+          <button type="submit" class="btn btn-primary w-100" style="border-radius:var(--radius-pill);padding:10px;">
+            🔍 开始识别
+          </button>
+        </form>
+      </div>
+    </div>
+
+    {% if results %}
+    <div class="card mt-4">
+      <div class="card-header">
+        <div class="card-header-icon">✨</div>
+        识别结果
+      </div>
+      <div class="card-body">
+        <h5 class="fw-bold mb-3">Top-5 匹配品种</h5>
+        {% for breed, conf in results %}
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="fw-bold">{{ loop.index }}. {{ breed }}</span>
+            <span class="fw-bold text-primary">{{ (conf*100)|round(1) }}%</span>
+          </div>
+          <div class="progress" style="height:10px;border-radius:99px;">
+            <div class="progress-bar" style="width:{{ conf*100 }}%;background:{% if loop.index==1 %}var(--accent){% elif loop.index==2 %}var(--primary){% else %}var(--text-muted){% endif %};border-radius:99px;"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="card-footer">
+        <a href="{{ url_for('pets.new_pet') }}?breed={{ results[0][0] if results else '' }}" class="btn btn-success btn-sm">+ 创建宠物档案</a>
+        <a href="{{ url_for('adoption.list_adoptable') }}" class="btn btn-outline-primary btn-sm ms-2">查看可领养宠物</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- 识别说明 -->
+  <div class="col-lg-7">
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="card-header-icon">ℹ️</div>
+        支持识别的品种（共37种）
+      </div>
+      <div class="card-body" style="font-size:0.85rem;color:var(--text-secondary);">
+        <div class="row">
+          <div class="col-sm-6">
+            <div class="mb-1">🐶 狗：</div>
+            <span>切萨皮克海湾猎犬、纽芬兰犬、博美犬、萨摩耶犬、藏獒、英国史宾格犬、比格猎犬、法斗、巴哥犬</span>
+          </div>
+          <div class="col-sm-6">
+            <div class="mb-1">🐱 猫：</div>
+            <span>孟加拉猫、孟买猫、英国短毛猫、埃及猫、缅因猫、波斯猫、俄罗斯蓝猫、暹罗猫</span>
+          </div>
+        </div>
+        <div class="mt-2" style="color:var(--text-muted);font-size:0.8rem;">完整品种列表请参考数据库 instance/breeds.txt</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">💡</div>
+        识别小技巧
+      </div>
+      <div class="card-body" style="font-size:0.88rem;line-height:1.8;">
+        <div class="mb-2">✅ <strong>光线充足</strong>：在自然光或明亮灯光下拍摄效果最佳</div>
+        <div class="mb-2">✅ <strong>正面照片</strong>：宠物正对镜头，面部特征清晰可见</div>
+        <div class="mb-2">✅ <strong>背景简洁</strong>：避免背景过于杂乱，以免干扰识别</div>
+        <div class="mb-0">✅ <strong>对焦清晰</strong>：确保宠物面部清晰，不要虚焦</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function previewFile() {
+  var file = document.getElementById('fileInput').files[0];
+  if (file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var box = document.getElementById('previewBox');
+      document.getElementById('previewImg').src = e.target.result;
+      box.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+</script>
+{% endblock %}

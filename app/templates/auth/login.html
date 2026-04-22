@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block title %}登录 - 萌宠之家{% endblock %}
+
+{% block content %}
+<style>
+.login-page {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 40%, #4f46e5 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.login-card {
+  background: #fff;
+  border-radius: var(--radius-xl);
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+.login-logo {
+  text-align: center;
+  margin-bottom: 28px;
+}
+.login-logo .icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+.login-logo h2 {
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+.login-logo p {
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+</style>
+
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="icon">🐾</div>
+      <h2>萌宠之家</h2>
+      <p>宠物门店管理系统</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="alert alert-{{ cat }} mb-3">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="post">
+      <div class="mb-3">
+        <label class="form-label">用户名</label>
+        <input type="text" name="username" class="form-control" required autofocus placeholder="请输入用户名" value="{{ username or '' }}">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">密码</label>
+        <input type="password" name="password" class="form-control" required placeholder="请输入密码">
+      </div>
+      <button type="submit" class="btn btn-primary w-100" style="padding:10px;border-radius:var(--radius-pill);font-weight:700;font-size:1rem;">
+        登录
+      </button>
+    </form>
+
+    <div class="text-center mt-4" style="font-size:0.82rem;color:var(--text-muted);">
+      默认账号：<strong>admin</strong> &nbsp;|&nbsp; 密码：<strong>admin123</strong>
+    </div>
+  </div>
+</div>
+{% endblock %}

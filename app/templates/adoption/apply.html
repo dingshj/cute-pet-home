@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}申请领养 - 萌宠之家{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>📝 领养申请</h1>
+    <p>为 {{ pet.name }} 提交领养申请</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📋</div>
+        填写领养信息
+      </div>
+      <div class="card-body">
+        <form method="post">
+          <div class="mb-3">
+            <label class="form-label">申请人姓名 *</label>
+            <input type="text" name="applicant_name" class="form-control" required placeholder="请输入您的真实姓名">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">联系电话 *</label>
+            <input type="tel" name="applicant_phone" class="form-control" required placeholder="请输入手机号码">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">详细地址</label>
+            <input type="text" name="applicant_address" class="form-control" placeholder="请输入居住地址">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">领养意愿说明</label>
+            <textarea name="applicant_intent" class="form-control" rows="4" placeholder="请说明您的领养原因、居住环境、对宠物的照顾计划等"></textarea>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">提交申请</button>
+            <a href="{{ url_for('adoption.list_adoptable') }}" class="btn btn-outline-secondary">取消</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

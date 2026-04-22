@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}宠物商城 - 萌宠之家{% endblock %}
+
+{% block content %}
+<!-- 商城首页 Hero -->
+<div class="shop-hero">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-7">
+        <h1>🛒 萌宠精品商城</h1>
+        <p>精选宠物服装、食品、玩具，用爱守护每一只萌宠</p>
+        <a href="{{ url_for('shop.list') }}" class="btn btn-primary" style="background:#fff;color:var(--primary);border-radius:var(--radius-pill);padding:10px 30px;font-weight:600;">逛逛商城</a>
+        <a href="{{ url_for('shop.cart') }}" class="btn btn-outline-light" style="border-radius:var(--radius-pill);padding:10px 24px;">🛒 购物车</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="container py-4">
+
+  <!-- 分类图标 -->
+  <div class="section-header">
+    <div class="section-title">📦 商品分类</div>
+  </div>
+  <div class="category-icon-grid">
+    {% for cat in categories %}
+    <a href="{{ url_for('shop.list', category=cat.id) }}" class="category-icon-card">
+      <div class="icon">{{ cat.icon or '🐾' }}</div>
+      <div class="name">{{ cat.name }}</div>
+    </a>
+    {% else %}
+    <a href="{{ url_for('shop.list', category=1) }}" class="category-icon-card"><div class="icon">👕</div><div class="name">宠物服装</div></a>
+    <a href="{{ url_for('shop.list', category=2) }}" class="category-icon-card"><div class="icon">🍖</div><div class="name">宠物食品</div></a>
+    <a href="{{ url_for('shop.list', category=3) }}" class="category-icon-card"><div class="icon">🧸</div><div class="name">宠物玩具</div></a>
+    <a href="{{ url_for('shop.list', category=4) }}" class="category-icon-card"><div class="icon">🏠</div><div class="name">宠物窝笼</div></a>
+    <a href="{{ url_for('shop.list', category=5) }}" class="category-icon-card"><div class="icon">🛁</div><div class="name">清洁护理</div></a>
+    <a href="{{ url_for('shop.list', category=6) }}" class="category-icon-card"><div class="icon">🎀</div><div class="name">配饰装饰</div></a>
+    {% endfor %}
+  </div>
+
+  <!-- 精选推荐 -->
+  {% if featured %}
+  <div class="mt-4">
+    <div class="section-header">
+      <div class="section-title">🔥 精选推荐</div>
+      <a href="{{ url_for('shop.list', sort='sales') }}" class="view-all">查看全部 →</a>
+    </div>
+    <div class="products-grid">
+      {% for p in featured %}
+      <a href="{{ url_for('shop.detail', product_id=p.id) }}" class="product-card">
+        <div class="position-relative">
+          {% if p.image_url %}
+          <img src="{{ p.image_url }}" class="product-img" alt="{{ p.name }}">
+          {% else %}
+          <div class="product-img-placeholder">🐾</div>
+          {% endif %}
+          <span class="product-tag featured">精选</span>
+        </div>
+        <div class="product-body">
+          {% if p.category %}<div class="badge-category mb-1">{{ p.category.name }}</div>{% endif %}
+          <div class="product-name">{{ p.name }}</div>
+          {% if p.brand %}<div class="product-brand">{{ p.brand }}</div>{% endif %}
+          <div class="product-price">
+            ¥{{ "%.2f"|format(p.price) }}
+            {% if p.original_price and p.original_price > p.price %}
+            <span class="original">¥{{ "%.2f"|format(p.original_price) }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 新品上架 -->
+  {% if newest %}
+  <div class="mt-4 mb-5">
+    <div class="section-header">
+      <div class="section-title">✨ 新品上架</div>
+      <a href="{{ url_for('shop.list', sort='newest') }}" class="view-all">查看全部 →</a>
+    </div>
+    <div class="products-grid">
+      {% for p in newest %}
+      <a href="{{ url_for('shop.detail', product_id=p.id) }}" class="product-card">
+        <div class="position-relative">
+          {% if p.image_url %}
+          <img src="{{ p.image_url }}" class="product-img" alt="{{ p.name }}">
+          {% else %}
+          <div class="product-img-placeholder">🐾</div>
+          {% endif %}
+          <span class="product-tag new">新品</span>
+        </div>
+        <div class="product-body">
+          {% if p.category %}<div class="badge-category mb-1">{{ p.category.name }}</div>{% endif %}
+          <div class="product-name">{{ p.name }}</div>
+          {% if p.brand %}<div class="product-brand">{{ p.brand }}</div>{% endif %}
+          <div class="product-price">
+            ¥{{ "%.2f"|format(p.price) }}
+            {% if p.original_price and p.original_price > p.price %}
+            <span class="original">¥{{ "%.2f"|format(p.original_price) }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {% if not featured and not newest %}
+  <div class="text-center py-5">
+    <div style="font-size:4rem;margin-bottom:16px;">🛒</div>
+    <h5 class="text-muted">商城正在筹备中...</h5>
+    <a href="{{ url_for('shop.list') }}" class="btn btn-primary mt-2">先看看商品列表</a>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

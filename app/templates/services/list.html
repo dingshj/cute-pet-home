@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}服务工单 - 萌宠之家{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div>
+      <h1>📋 服务工单</h1>
+      <p>管理美容、寄养等服务订单</p>
+    </div>
+    <a href="{{ url_for('services.new_order') }}" class="btn btn-primary">+ 新建工单</a>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+      <div class="filter-tabs">
+        <a href="{{ url_for('services.list_orders') }}" class="filter-tab {% if not status %}active{% endif %}">全部</a>
+        <a href="{{ url_for('services.list_orders', status='pending') }}" class="filter-tab {% if status=='pending' %}active{% endif %}">🟡 待处理</a>
+        <a href="{{ url_for('services.list_orders', status='in_progress') }}" class="filter-tab {% if status=='in_progress' %}active{% endif %}">🔵 进行中</a>
+        <a href="{{ url_for('services.list_orders', status='completed') }}" class="filter-tab {% if status=='completed' %}active{% endif %}">🟢 已完成</a>
+        <a href="{{ url_for('services.list_orders', status='cancelled') }}" class="filter-tab {% if status=='cancelled' %}active{% endif %}">⚪ 已取消</a>
+      </div>
+      <form method="get" class="search-bar">
+        <input type="text" name="q" class="form-control" placeholder="搜索宠物或备注..." value="{{ keyword }}">
+        <button type="submit" class="btn btn-primary">搜索</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>宠物</th>
+          <th>服务类型</th>
+          <th>状态</th>
+          <th>预约时间</th>
+          <th>金额</th>
+          <th>创建时间</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in orders %}
+        <tr>
+          <td class="fw-bold">#{{ order.id }}</td>
+          <td>
+            {% if order.pet %}
+            <a href="{{ url_for('pets.detail', pet_id=order.pet.id) }}">{{ order.pet.name }}</a>
+            <div style="font-size:0.78rem;color:var(--text-muted);">{{ order.pet.breed or order.pet.species }}</div>
+            {% else %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          <td>{{ '✂️ 美容' if order.service_type=='groom' else '🏠 寄养' if order.service_type=='boarding' else order.service_type }}</td>
+          <td><span class="badge badge-soft {{ order.status }}">{{ {'pending':'待处理','in_progress':'进行中','completed':'已完成','cancelled':'已取消'}.get(order.status, order.status) }}</span></td>
+          <td style="font-size:0.85rem;">{{ order.scheduled_at.strftime('%Y-%m-%d %H:%M') if order.scheduled_at else '—' }}</td>
+          <td class="fw-bold text-danger">¥{{ "%.2f"|format(order.amount) }}</td>
+          <td style="color:var(--text-muted);font-size:0.82rem;">{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+          <td>
+            <a href="{{ url_for('services.edit_order', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">编辑</a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="text-center text-muted py-5">
+            <div style="font-size:3rem;margin-bottom:12px;">📋</div>
+            暂无工单记录
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

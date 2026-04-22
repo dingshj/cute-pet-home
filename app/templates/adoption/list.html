@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}领养中心 - 萌宠之家{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>🏠 领养中心</h1>
+    <p>为流浪宠物找到温暖的家</p>
+  </div>
+</div>
+
+<div class="row g-3">
+  {% for pet in pets %}
+  <div class="col-sm-6 col-lg-4">
+    <div class="card">
+      {% if pet.photo_filename %}
+      <img src="{{ url_for('static', filename='uploads/' + pet.photo_filename) }}" style="width:100%;height:200px;object-fit:cover;" alt="{{ pet.name }}">
+      {% else %}
+      <div style="width:100%;height:200px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);display:flex;align-items:center;justify-content:center;font-size:4rem;">
+        {{ '🐶' if pet.species == '狗' else '🐱' }}
+      </div>
+      {% endif %}
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <h5 class="mb-0 fw-bold">{{ pet.name }}</h5>
+          <span class="badge badge-soft available">待领养</span>
+        </div>
+        <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:8px;">
+          🐾 {{ pet.breed or pet.species }}
+          {% if pet.owner_name %} · 👤 {{ pet.owner_name }}{% endif %}
+        </div>
+        {% if pet.adoption_description %}
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">
+          {{ pet.adoption_description }}
+        </p>
+        {% endif %}
+        <div class="d-flex justify-content-between align-items-center">
+          {% if pet.adoption_fee and pet.adoption_fee > 0 %}
+          <span class="fw-bold text-danger">领养费 ¥{{ pet.adoption_fee }}</span>
+          {% else %}
+          <span class="fw-bold text-accent">免费领养</span>
+          {% endif %}
+          <a href="{{ url_for('adoption.detail', pet_id=pet.id) }}" class="btn btn-primary btn-sm">申请领养</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12">
+    <div class="text-center py-5 text-muted">
+      <div style="font-size:4rem;margin-bottom:16px;">🏠</div>
+      <h5>暂无待领养宠物</h5>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

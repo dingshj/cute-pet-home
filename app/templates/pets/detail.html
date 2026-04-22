@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}{{ pet.name }} - 宠物档案{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <nav aria-label="breadcrumb" style="font-size:0.85rem;opacity:0.8;">
+      <a href="{{ url_for('pets.list_pets') }}" style="color:#fff;text-decoration:none;">宠物档案</a>
+      <span class="mx-2">/</span> {{ pet.name }}
+    </nav>
+    <h1 class="mt-1">{{ '🐶' if pet.species == '狗' else '🐱' }} {{ pet.name }}</h1>
+    <p>{{ pet.breed or pet.species }}</p>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card mb-4">
+      {% if pet.photo_filename %}
+      <img src="{{ url_for('static', filename='uploads/' + pet.photo_filename) }}" alt="{{ pet.name }}" style="width:100%;height:240px;object-fit:cover;">
+      {% else %}
+      <div style="width:100%;height:200px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);display:flex;align-items:center;justify-content:center;font-size:4rem;color:var(--text-muted);">
+        {{ '🐶' if pet.species == '狗' else '🐱' }}
+      </div>
+      {% endif %}
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="badge badge-soft {{ pet.adoption_status }}">{{ {'available':'待领养','adopted':'已领养','adopting':'领养中'}.get(pet.adoption_status, pet.adoption_status) }}</span>
+          {% if pet.breed_confidence %}<span class="badge" style="background:#eef2ff;color:var(--primary);">识别置信度 {{ (pet.breed_confidence*100)|int }}%</span>{% endif %}
+        </div>
+        <div class="mb-2"><span class="text-muted" style="font-size:0.82rem;">品种</span><div class="fw-bold">{{ pet.breed or '—' }}</div></div>
+        <div class="mb-2"><span class="text-muted" style="font-size:0.82rem;">主人</span><div class="fw-bold">{{ pet.owner_name or '—' }}</div></div>
+        <div class="mb-2"><span class="text-muted" style="font-size:0.82rem;">电话</span><div class="fw-bold">{{ pet.owner_phone or '—' }}</div></div>
+        {% if pet.adoption_fee %}<div class="mb-2"><span class="text-muted" style="font-size:0.82rem;">领养费</span><div class="fw-bold text-danger">¥{{ pet.adoption_fee }}</div></div>{% endif %}
+        {% if pet.notes %}<div class="mb-2"><span class="text-muted" style="font-size:0.82rem;">备注</span><div style="font-size:0.88rem;">{{ pet.notes }}</div></div>{% endif %}
+        <hr>
+        <div class="d-flex gap-2">
+          <a href="{{ url_for('pets.edit_pet', pet_id=pet.id) }}" class="btn btn-outline-primary btn-sm flex-grow-1">编辑档案</a>
+          <form method="post" action="{{ url_for('pets.delete_pet', pet_id=pet.id) }}" onsubmit="return confirm('确定删除？')">
+            <button type="submit" class="btn btn-outline-danger btn-sm">删除</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="card-header-icon">📋</div>
+        服务工单记录
+      </div>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead>
+            <tr><th>编号</th><th>服务类型</th><th>状态</th><th>金额</th><th>创建时间</th></tr>
+          </thead>
+          <tbody>
+            {% for order in pet.orders %}
+            <tr>
+              <td class="fw-bold">#{{ order.id }}</td>
+              <td>{{ '✂️ 美容' if order.service_type=='groom' else '🏠 寄养' if order.service_type=='boarding' else order.service_type }}</td>
+              <td><span class="badge badge-soft {{ order.status }}">{{ {'pending':'待处理','in_progress':'进行中','completed':'已完成','cancelled':'已取消'}.get(order.status, order.status) }}</span></td>
+              <td class="fw-bold">¥{{ "%.2f"|format(order.amount) }}</td>
+              <td style="color:var(--text-muted);font-size:0.82rem;">{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" class="text-center text-muted py-4">暂无工单记录</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card mb-4">
+      <div class="card-header">
+        <div class="card-header-icon">🏠</div>
+        领养申请
+      </div>
+      <div class="table-responsive">
+        <table class="table mb-0">
+          <thead>
+            <tr><th>申请人</th><th>联系方式</th><th>状态</th><th>申请时间</th></tr>
+          </thead>
+          <tbody>
+            {% for req in pet.adoption_requests %}
+            <tr>
+              <td class="fw-bold">{{ req.applicant_name }}</td>
+              <td>{{ req.applicant_phone }}</td>
+              <td><span class="badge badge-soft {{ req.status }}">{{ {'pending':'待审核','approved':'已通过','rejected':'已拒绝'}.get(req.status, req.status) }}</span></td>
+              <td style="color:var(--text-muted);font-size:0.82rem;">{{ req.created_at.strftime('%Y-%m-%d') }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-4">暂无领养申请</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <a href="{{ url_for('services.new_order') }}" class="btn btn-primary">+ 新建服务工单</a>
+  </div>
+</div>
+{% endblock %}

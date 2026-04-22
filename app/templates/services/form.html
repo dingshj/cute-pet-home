@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ '编辑' if order else '新建' }}服务工单{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>{{ '✏️' if order else '➕' }} {{ '编辑工单' if order else '新建服务工单' }}</h1>
+    <p>管理美容、寄养等服务</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📋</div>
+        {{ '编辑工单' if order else '新建服务工单' }}
+      </div>
+      <div class="card-body">
+        <form method="post">
+          <div class="mb-3">
+            <label class="form-label">关联宠物 *</label>
+            <select name="pet_id" class="form-select" required>
+              <option value="">请选择宠物</option>
+              {% for pet in pets %}
+              <option value="{{ pet.id }}" {% if order and order.pet_id==pet.id %}selected{% endif %}>{{ pet.name }} ({{ pet.breed or pet.species }})</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+              <label class="form-label">服务类型 *</label>
+              <select name="service_type" class="form-select" required>
+                <option value="groom" {% if order and order.service_type=='groom' %}selected{% endif %}>✂️ 美容</option>
+                <option value="boarding" {% if order and order.service_type=='boarding' %}selected{% endif %}>🏠 寄养</option>
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">工单状态</label>
+              <select name="status" class="form-select">
+                <option value="pending" {% if order and order.status=='pending' %}selected{% endif %}>🟡 待处理</option>
+                <option value="in_progress" {% if order and order.status=='in_progress' %}selected{% endif %}>🔵 进行中</option>
+                <option value="completed" {% if order and order.status=='completed' %}selected{% endif %}>🟢 已完成</option>
+                <option value="cancelled" {% if order and order.status=='cancelled' %}selected{% endif %}>⚪ 已取消</option>
+              </select>
+            </div>
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-sm-6">
+              <label class="form-label">预约时间</label>
+              <input type="datetime-local" name="scheduled_at" class="form-control" value="{{ order.scheduled_at.strftime('%Y-%m-%dT%H:%M') if order and order.scheduled_at else '' }}">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">服务金额</label>
+              <input type="number" step="0.01" name="amount" class="form-control" value="{{ order.amount if order else '' }}" placeholder="0.00">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">备注</label>
+            <textarea name="notes" class="form-control" rows="3" placeholder="其他备注信息">{{ order.notes if order else '' }}</textarea>
+          </div>
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">{{ '保存修改' if order else '创建工单' }}</button>
+            <a href="{{ url_for('services.list_orders') }}" class="btn btn-outline-secondary">取消</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - 宠物商城{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <nav aria-label="breadcrumb" style="font-size:0.85rem;opacity:0.8;">
+      <a href="{{ url_for('shop.index') }}" style="color:#fff;text-decoration:none;">商城首页</a>
+      <span class="mx-2">/</span>
+      <a href="{{ url_for('shop.list') }}" style="color:#fff;text-decoration:none;">商品列表</a>
+      <span class="mx-2">/</span> {{ product.name[:20] }}...
+    </nav>
+    <h1 class="mt-1">{{ product.name }}</h1>
+    <p>{{ product.brand or product.category.name if product.category else '' }}</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="product-detail-card mb-4">
+    <div class="row g-4">
+      <!-- 图片 -->
+      <div class="col-lg-5">
+        {% if product.image_url %}
+        <img src="{{ product.image_url }}" style="width:100%;height:360px;object-fit:cover;border-radius:var(--radius-lg);" alt="{{ product.name }}">
+        {% else %}
+        <div style="width:100%;height:360px;background:linear-gradient(135deg,#f1f5f9,#e2e8f0);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;font-size:6rem;color:var(--text-muted);">🐾</div>
+        {% endif %}
+      </div>
+
+      <!-- 信息 -->
+      <div class="col-lg-7">
+        <h2 style="font-size:1.4rem;font-weight:700;margin-bottom:8px;">{{ product.name }}</h2>
+        {% if product.brand %}<p style="color:var(--text-muted);margin-bottom:14px;">品牌：{{ product.brand }}</p>{% endif %}
+
+        <!-- 价格 -->
+        <div class="price-block">
+          <div style="font-size:0.85rem;color:var(--text-muted);margin-bottom:4px;">商城价</div>
+          <span class="price-current">¥{{ "%.2f"|format(product.price) }}</span>
+          {% if product.original_price and product.original_price > product.price %}
+          <span class="price-original">¥{{ "%.2f"|format(product.original_price) }}</span>
+          {% endif %}
+        </div>
+
+        <!-- 销售信息 -->
+        <div style="display:flex;gap:16px;margin-bottom:14px;font-size:0.85rem;color:var(--text-muted);flex-wrap:wrap;">
+          <span>销量 <strong style="color:var(--text-primary);">{{ product.sales_count }}</strong></span>
+          <span>库存
+            <strong style="color:var(--text-primary);">
+              {% if product.stock > 10 %}<span style="color:var(--accent);">充足</span>
+              {% elif product.stock > 0 %}<span style="color:var(--warning);">仅剩 {{ product.stock }} 件</span>
+              {% else %}<span style="color:var(--danger);">缺货</span>{% endif %}
+            </strong>
+          </span>
+          {% if product.spec %}<span>规格：{{ product.spec }}</span>{% endif %}
+        </div>
+
+        <!-- 购买 -->
+        <form action="{{ url_for('shop.cart_add', product_id=product.id) }}" method="post">
+          <div style="background:#fafafa;border-radius:var(--radius-md);padding:18px;margin-bottom:16px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+              <span style="font-size:0.88rem;color:var(--text-secondary);">购买数量</span>
+              <div class="qty-control">
+                <button type="button" onclick="var v=parseInt(this.nextElementSibling.value);this.nextElementSibling.value=Math.max(1,v-1)">−</button>
+                <input type="number" name="quantity" id="qty-input" value="1" min="1" max="{{ product.stock }}">
+                <button type="button" onclick="var v=parseInt(this.previousElementSibling.value),m=parseInt(this.previousElementSibling.max);this.previousElementSibling.value=Math.min(m,v+1)">+</button>
+              </div>
+              <span style="font-size:0.82rem;color:var(--text-muted);">库存 {{ product.stock }} 件</span>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+              <button type="submit" class="buy-btn" {% if product.stock == 0 %}disabled{% endif %}>🛒 加入购物车</button>
+              <a href="{{ url_for('shop.checkout') }}" class="buy-btn-secondary {% if product.stock == 0 %}disabled{% endif %}"
+                 onclick="return {{ 'true' if product.stock > 0 else 'false' }}">立即购买</a>
+            </div>
+          </div>
+        </form>
+
+        <!-- 服务承诺 -->
+        <div style="display:flex;gap:16px;font-size:0.82rem;color:var(--text-muted);flex-wrap:wrap;">
+          <span>🚚 全国包邮</span>
+          <span>🔒 正规渠道</span>
+          <span>📦 7天退换</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 商品详情 -->
+  <div class="product-detail-card mb-4">
+    <div class="card-header" style="background:#fff;">
+      <div class="card-header-icon">📋</div>
+      商品详情
+    </div>
+    <div class="card-body" style="line-height:1.9;font-size:0.92rem;color:var(--text-secondary);">
+      {% if product.description %}{{ product.description }}{% else %}<span class="text-muted">暂无详细描述</span>{% endif %}
+    </div>
+  </div>
+
+  <!-- 相关推荐 -->
+  {% if related %}
+  <div class="product-detail-card">
+    <div class="card-header" style="background:#fff;">
+      <div class="card-header-icon">💡</div>
+      相关推荐
+    </div>
+    <div class="card-body">
+      <div class="products-grid">
+        {% for p in related %}
+        <a href="{{ url_for('shop.detail', product_id=p.id) }}" class="product-card">
+          <div class="position-relative">
+            {% if p.image_url %}
+            <img src="{{ p.image_url }}" class="product-img" style="height:160px;" alt="{{ p.name }}">
+            {% else %}
+            <div class="product-img-placeholder" style="height:160px;">🐾</div>
+            {% endif %}
+          </div>
+          <div class="product-body">
+            <div class="product-name">{{ p.name }}</div>
+            <div class="product-price">¥{{ "%.2f"|format(p.price) }}</div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

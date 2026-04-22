@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}宠物档案 - 萌宠之家{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container d-flex justify-content-between align-items-center">
+    <div>
+      <h1>🐶 宠物档案</h1>
+      <p>管理所有在册宠物信息</p>
+    </div>
+    <a href="{{ url_for('pets.new_pet') }}" class="btn btn-primary">+ 新增宠物</a>
+  </div>
+</div>
+
+<div class="card mb-4">
+  <div class="card-body">
+    <form method="get" class="search-bar">
+      <input type="text" name="q" class="form-control" placeholder="搜索宠物名称或品种..." value="{{ keyword }}">
+      <select name="species" class="form-select" style="width:auto;">
+        <option value="">全部物种</option>
+        <option value="狗" {% if species=='狗' %}selected{% endif %}>🐶 狗</option>
+        <option value="猫" {% if species=='猫' %}selected{% endif %}>🐱 猫</option>
+      </select>
+      <button type="submit" class="btn btn-primary">搜索</button>
+      {% if keyword or species %}
+      <a href="{{ url_for('pets.list_pets') }}" class="btn btn-outline-secondary">清除</a>
+      {% endif %}
+    </form>
+  </div>
+</div>
+
+<div class="row g-3">
+  {% for pet in pets %}
+  <div class="col-sm-6 col-md-4 col-lg-3">
+    <div class="pet-card">
+      {% if pet.photo_filename %}
+      <img src="{{ url_for('static', filename='uploads/' + pet.photo_filename) }}" class="pet-card-img" style="height:180px;" alt="{{ pet.name }}">
+      {% else %}
+      <div class="pet-card-img">{{ '🐶' if pet.species == '狗' else '🐱' }}</div>
+      {% endif %}
+      <div class="pet-card-body">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <div class="name">{{ pet.name }}</div>
+          <span class="badge badge-soft {{ pet.adoption_status }}">{{ {'available':'待领养','adopted':'已领养','adopting':'领养中'}.get(pet.adoption_status, pet.adoption_status) }}</span>
+        </div>
+        <div class="meta mb-1">🐾 {{ pet.breed or pet.species }}</div>
+        <div class="meta mb-2">👤 {{ pet.owner_name or '—' }}</div>
+        <div class="d-flex gap-1 flex-wrap">
+          <a href="{{ url_for('pets.detail', pet_id=pet.id) }}" class="btn btn-sm btn-outline-primary">查看</a>
+          <a href="{{ url_for('pets.edit_pet', pet_id=pet.id) }}" class="btn btn-sm btn-outline-secondary">编辑</a>
+          <form method="post" action="{{ url_for('pets.delete_pet', pet_id=pet.id) }}" style="display:inline;" onsubmit="return confirm('确定删除该宠物档案？')">
+            <button type="submit" class="btn btn-sm btn-outline-danger">删除</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="col-12">
+    <div class="text-center py-5 text-muted">
+      <div style="font-size:3rem;margin-bottom:12px;">🐾</div>
+      <h5>暂无宠物档案</h5>
+      <p>点击右上角「新增宠物」添加</p>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

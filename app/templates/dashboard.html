@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}数据看板 - 萌宠之家{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>📊 数据看板</h1>
+    <p>门店经营数据总览</p>
+  </div>
+</div>
+
+<!-- 统计卡片 -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon pet">🐶</div>
+      <div class="stat-body">
+        <div class="label">宠物档案总数</div>
+        <div class="value">{{ pet_count }}</div>
+        <div class="sub">在册宠物数量</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon order">📋</div>
+      <div class="stat-body">
+        <div class="label">服务工单总数</div>
+        <div class="value">{{ order_count }}</div>
+        <div class="sub">全部服务订单</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon revenue">💰</div>
+      <div class="stat-body">
+        <div class="label">服务总收入</div>
+        <div class="value">¥{{ "%.0f"|format(total_revenue) }}</div>
+        <div class="sub">累计营收金额</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-lg-3">
+    <div class="stat-card">
+      <div class="stat-icon adoption">🏠</div>
+      <div class="stat-body">
+        <div class="label">领养申请数</div>
+        <div class="value">{{ adoption_count }}</div>
+        <div class="sub">全部领养申请</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 工单状态分布 -->
+<div class="row g-3 mb-4">
+  <div class="col-lg-5">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">📈</div>
+        服务工单状态分布
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span style="font-size:0.85rem;">🟡 待处理</span>
+            <span class="fw-bold" style="color:var(--warning);">{{ pending_count }}</span>
+          </div>
+          <div class="progress" style="height:8px;border-radius:99px;">
+            <div class="progress-bar" style="width:{{ (pending_count/order_count*100) if order_count > 0 else 0 }}%;background:var(--warning);border-radius:99px;"></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span style="font-size:0.85rem;">🔵 进行中</span>
+            <span class="fw-bold" style="color:var(--primary);">{{ in_progress_count }}</span>
+          </div>
+          <div class="progress" style="height:8px;border-radius:99px;">
+            <div class="progress-bar" style="width:{{ (in_progress_count/order_count*100) if order_count > 0 else 0 }}%;background:var(--primary);border-radius:99px;"></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span style="font-size:0.85rem;">🟢 已完成</span>
+            <span class="fw-bold" style="color:var(--accent);">{{ completed_count }}</span>
+          </div>
+          <div class="progress" style="height:8px;border-radius:99px;">
+            <div class="progress-bar" style="width:{{ (completed_count/order_count*100) if order_count > 0 else 0 }}%;background:var(--accent);border-radius:99px;"></div>
+          </div>
+        </div>
+        <div>
+          <div class="d-flex justify-content-between mb-1">
+            <span style="font-size:0.85rem;">⚪ 已取消</span>
+            <span class="fw-bold" style="color:var(--text-muted);">{{ cancelled_count }}</span>
+          </div>
+          <div class="progress" style="height:8px;border-radius:99px;">
+            <div class="progress-bar" style="width:{{ (cancelled_count/order_count*100) if order_count > 0 else 0 }}%;background:var(--text-muted);border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">🏠</div>
+        领养申请状态
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span style="font-size:0.85rem;">🟡 待审核</span>
+            <span class="fw-bold" style="color:var(--warning);">{{ adoption_pending }}</span>
+          </div>
+          <div class="progress" style="height:8px;border-radius:99px;">
+            <div class="progress-bar" style="width:{{ (adoption_pending/adoption_count*100) if adoption_count > 0 else 0 }}%;background:var(--warning);border-radius:99px;"></div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <div class="d-flex justify-content-between mb-1">
+            <span style="font-size:0.85rem;">🟢 已通过</span>
+            <span class="fw-bold" style="color:var(--accent);">{{ adoption_approved }}</span>
+          </div>
+          <div class="progress" style="height:8px;border-radius:99px;">
+            <div class="progress-bar" style="width:{{ (adoption_approved/adoption_count*100) if adoption_count > 0 else 0 }}%;background:var(--accent);border-radius:99px;"></div>
+          </div>
+        </div>
+        <div>
+          <div class="d-flex justify-content-between mb-1">
+            <span style="font-size:0.85rem;">🔴 已拒绝</span>
+            <span class="fw-bold" style="color:var(--danger);">{{ adoption_rejected }}</span>
+          </div>
+          <div class="progress" style="height:8px;border-radius:99px;">
+            <div class="progress-bar" style="width:{{ (adoption_rejected/adoption_count*100) if adoption_count > 0 else 0 }}%;background:var(--danger);border-radius:99px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 最近工单 -->
+<div class="card">
+  <div class="card-header">
+    <div class="card-header-icon">⏱️</div>
+    最近服务工单
+  </div>
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>工单编号</th>
+          <th>宠物</th>
+          <th>服务类型</th>
+          <th>状态</th>
+          <th>金额</th>
+          <th>创建时间</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for order in recent_orders %}
+        <tr>
+          <td><span class="fw-bold">#{{ order.id }}</span></td>
+          <td>{{ order.pet.name if order.pet else '—' }}</td>
+          <td>
+            {% if order.service_type == 'groom' %}✂️ 美容
+            {% elif order.service_type == 'boarding' %}🏠 寄养
+            {% else %}{{ order.service_type }}{% endif %}
+          </td>
+          <td><span class="badge badge-soft {{ order.status }}">{{ {'pending':'待处理','in_progress':'进行中','completed':'已完成','cancelled':'已取消'}.get(order.status, order.status) }}</span></td>
+          <td class="fw-bold">¥{{ "%.2f"|format(order.amount) }}</td>
+          <td style="color:var(--text-muted);font-size:0.82rem;">{{ order.created_at.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-center text-muted py-4">暂无工单数据</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

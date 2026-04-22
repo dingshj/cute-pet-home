@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}首页 - 萌宠之家{% endblock %}
+
+{% block content %}
+<style>
+.hero {
+  background: linear-gradient(135deg, #1e1b4b 0%, #3730a3 40%, #4f46e5 100%);
+  color: #fff;
+  padding: 0;
+  border-radius: 0;
+  overflow: hidden;
+  position: relative;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: radial-gradient(ellipse at 80% 50%, rgba(99,102,241,0.35) 0%, transparent 60%);
+}
+.hero-content { position: relative; z-index: 1; padding: 90px 0 80px; }
+.hero h1 { font-weight: 800; font-size: 2.5rem; line-height: 1.3; margin-bottom: 14px; }
+.hero h1 span { color: #818cf8; }
+.hero p { font-size: 1.05rem; opacity: 0.78; margin-bottom: 28px; }
+.hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-btns .btn { padding: 11px 26px; border-radius: var(--radius-pill); font-weight: 600; font-size: 0.95rem; }
+.hero-btns .btn-white { background: #fff; color: var(--primary); }
+.hero-btns .btn-white:hover { background: #eef2ff; }
+.hero-btns .btn-ghost { border: 2px solid rgba(255,255,255,0.4); color: #fff; }
+.hero-btns .btn-ghost:hover { border-color: #fff; background: rgba(255,255,255,0.1); }
+</style>
+
+<div class="hero">
+  <div class="container hero-content">
+    <div class="row align-items-center">
+      <div class="col-lg-8">
+        <h1>让每一只萌宠<br>都被<span>温柔以待</span></h1>
+        <p>集宠物识别、档案管理、美容寄养、领养服务于一体，<br>让门店经营更高效，让宠物生活更精致。</p>
+        <div class="hero-btns">
+          <a href="{{ url_for('auth.login') }}" class="btn btn-white">立即体验</a>
+          <a href="{{ url_for('shop.index') }}" class="btn btn-ghost">逛逛商城</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

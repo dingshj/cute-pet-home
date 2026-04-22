@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+
+{% block title %}我的订单 - 宠物商城{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>📦 我的订单</h1>
+    <p>查看所有商城订单</p>
+  </div>
+</div>
+
+<div class="container">
+  {% if orders %}
+  {% for order in orders %}
+  <div class="shop-order-card">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:12px;border-bottom:1px solid var(--border);margin-bottom:12px;">
+      <div>
+        <span class="fw-bold">{{ order.order_no }}</span>
+        <span style="color:var(--text-muted);font-size:0.82rem;margin-left:10px;">{{ order.created_at.strftime('%Y-%m-%d %H:%M') }}</span>
+      </div>
+      <span class="badge badge-soft {{ order.status }}">
+        {% if order.status == 'pending' %}🟡 待支付
+        {% elif order.status == 'paid' %}🔵 已支付
+        {% elif order.status == 'shipped' %}🚚 已发货
+        {% elif order.status == 'completed' %}🟢 已完成
+        {% elif order.status == 'cancelled' %}⚪ 已取消
+        {% else %}{{ order.status }}{% endif %}
+      </span>
+    </div>
+
+    {% for item in order.items %}
+    <div style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+      {% if item.product_image %}
+      <img src="{{ item.product_image }}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;flex-shrink:0;">
+      {% else %}
+      <div style="width:44px;height:44px;background:#f1f5f9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;color:#ccc;flex-shrink:0;">🐾</div>
+      {% endif %}
+      <div style="flex-grow:1;min-width:0;">
+        <div style="font-size:0.88rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.product_name }}</div>
+        <div style="font-size:0.78rem;color:var(--text-muted);">× {{ item.quantity }}</div>
+      </div>
+      <div class="fw-bold text-danger" style="flex-shrink:0;">¥{{ "%.2f"|format(item.price * item.quantity) }}</div>
+    </div>
+    {% endfor %}
+
+    <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border);margin-top:6px;">
+      <span style="font-size:0.82rem;color:var(--text-muted);">{{ order.user_address[:30] }}...</span>
+      <span class="fw-bold" style="font-size:1.05rem;">实付：<span class="text-danger">¥{{ "%.2f"|format(order.total_amount) }}</span></span>
+    </div>
+  </div>
+  {% endfor %}
+
+  {% else %}
+  <div class="text-center py-5">
+    <div style="font-size:5rem;margin-bottom:16px;">📦</div>
+    <h4 class="text-muted mb-3">暂无订单</h4>
+    <a href="{{ url_for('shop.list') }}" class="btn btn-primary" style="border-radius:var(--radius-pill);padding:12px 36px;">去逛逛商城</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

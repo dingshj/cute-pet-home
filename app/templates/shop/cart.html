@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}购物车 - 宠物商城{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>🛒 我的购物车</h1>
+    <p>共 {{ cart_items|length }} 件商品</p>
+  </div>
+</div>
+
+<div class="container">
+  {% if cart_items %}
+  <div class="row g-4">
+    <!-- 商品列表 -->
+    <div class="col-lg-8">
+      {% for item in cart_items %}
+      <div class="cart-item-card">
+        <div class="row align-items-center g-3">
+          <div class="col-auto">
+            {% if item.product.image_url %}
+            <img src="{{ item.product.image_url }}" class="cart-item-img" alt="{{ item.product.name }}">
+            {% else %}
+            <div class="cart-item-img-placeholder">🐾</div>
+            {% endif %}
+          </div>
+          <div class="col">
+            <a href="{{ url_for('shop.detail', product_id=item.product.id) }}" class="fw-bold" style="color:var(--text-primary);font-size:0.95rem;">{{ item.product.name }}</a>
+            {% if item.product.brand %}<div style="font-size:0.82rem;color:var(--text-muted);">{{ item.product.brand }}</div>{% endif %}
+            <div class="fw-bold text-danger" style="font-size:1rem;">¥{{ "%.2f"|format(item.product.price) }}</div>
+          </div>
+          <div class="col-auto">
+            <form action="{{ url_for('shop.cart_update', product_id=item.product.id) }}" method="post" class="d-flex align-items-center gap-2">
+              <div class="qty-control">
+                <button type="button" onclick="this.parentNode.querySelector('input').value=Math.max(1,parseInt(this.parentNode.querySelector('input').value)-1);this.form.submit()">−</button>
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" onchange="this.form.submit()">
+                <button type="button" onclick="var m=parseInt(this.previousElementSibling.max),v=parseInt(this.previousElementSibling.value);this.previousElementSibling.value=Math.min(m,v+1);this.form.submit()">+</button>
+              </div>
+            </form>
+          </div>
+          <div class="col-auto text-end" style="min-width:90px;">
+            <div class="fw-bold text-danger" style="font-size:1.05rem;">¥{{ "%.2f"|format(item.item_total) }}</div>
+          </div>
+          <div class="col-auto">
+            <form action="{{ url_for('shop.cart_remove', product_id=item.product.id) }}" method="post">
+              <button type="submit" class="btn btn-outline-danger btn-sm" onclick="return confirm('确定移除？')">删除</button>
+            </form>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <div class="d-flex justify-content-end mt-3 mb-4">
+        <form action="{{ url_for('shop.cart_clear') }}" method="post">
+          <button type="submit" class="btn btn-outline-secondary btn-sm" onclick="return confirm('确定清空购物车？')">清空购物车</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- 订单摘要 -->
+    <div class="col-lg-4">
+      <div class="order-summary-card">
+        <div class="sidebar-title">📋 订单摘要</div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.88rem;">
+          <span style="color:var(--text-muted);">商品件数</span>
+          <span class="fw-bold">{{ cart_items|length }} 件</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.88rem;">
+          <span style="color:var(--text-muted);">商品总价</span>
+          <span class="fw-bold">¥{{ "%.2f"|format(total) }}</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.88rem;">
+          <span style="color:var(--text-muted);">运费</span>
+          <span style="color:var(--accent);font-weight:600;">免运费</span>
+        </div>
+        <div class="summary-total">
+          <span class="label">合计</span>
+          <span class="value">¥{{ "%.2f"|format(total) }}</span>
+        </div>
+        <a href="{{ url_for('shop.checkout') }}" class="btn btn-primary w-100 mt-3" style="padding:12px;border-radius:var(--radius-pill);font-weight:700;font-size:1rem;">去结算</a>
+        <div class="text-center mt-2">
+          <a href="{{ url_for('shop.list') }}" style="font-size:0.85rem;color:var(--primary);">继续购物</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% else %}
+  <div class="text-center py-5">
+    <div style="font-size:5rem;margin-bottom:16px;">🛒</div>
+    <h4 class="text-muted mb-3">购物车是空的</h4>
+    <a href="{{ url_for('shop.list') }}" class="btn btn-primary" style="border-radius:var(--radius-pill);padding:12px 36px;">去逛逛商城</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

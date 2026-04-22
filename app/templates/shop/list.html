@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+
+{% block title %}商品列表 - 宠物商城{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <h1>🛒 宠物商城</h1>
+      <p>共 {{ products|length }} 件商品</p>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <!-- 侧边栏 -->
+    <div class="col-lg-3">
+      <!-- 搜索 -->
+      <div class="sidebar-card">
+        <div class="sidebar-title">🔍 搜索商品</div>
+        <form method="get" class="search-bar d-block">
+          {% if cat_id %}<input type="hidden" name="category" value="{{ cat_id }}">{% endif %}
+          {% if sort != 'default' %}<input type="hidden" name="sort" value="{{ sort }}">{% endif %}
+          <input type="text" name="q" class="form-control mb-2" placeholder="搜索商品..." value="{{ keyword }}">
+          <button type="submit" class="btn btn-primary w-100">搜索</button>
+        </form>
+      </div>
+
+      <!-- 分类 -->
+      <div class="sidebar-card">
+        <div class="sidebar-title">📂 商品分类</div>
+        <a href="{{ url_for('shop.list') }}" class="cat-link {% if not cat_id %}active{% endif %}">全部商品</a>
+        {% for cat in categories %}
+        <a href="{{ url_for('shop.list', category=cat.id) }}" class="cat-link {% if cat_id == cat.id %}active{% endif %}">
+          {{ cat.icon or '🐾' }} {{ cat.name }}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 商品列表 -->
+    <div class="col-lg-9">
+      <!-- 排序 -->
+      <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+        <div style="font-size:0.88rem;color:var(--text-muted);">
+          {% if keyword %}搜索 "<strong>{{ keyword }}</strong>" 的结果：{% endif %}
+          <strong>{{ products|length }}</strong> 件商品
+        </div>
+        <div class="filter-tabs">
+          <a href="{{ url_for('shop.list', category=cat_id or None, q=keyword or None, sort='default') }}" class="filter-tab {% if sort == 'default' %}active{% endif %}">综合</a>
+          <a href="{{ url_for('shop.list', category=cat_id or None, q=keyword or None, sort='sales') }}" class="filter-tab {% if sort == 'sales' %}active{% endif %}">销量</a>
+          <a href="{{ url_for('shop.list', category=cat_id or None, q=keyword or None, sort='price_asc') }}" class="filter-tab {% if sort == 'price_asc' %}active{% endif %}">价格升</a>
+          <a href="{{ url_for('shop.list', category=cat_id or None, q=keyword or None, sort='price_desc') }}" class="filter-tab {% if sort == 'price_desc' %}active{% endif %}">价格降</a>
+          <a href="{{ url_for('shop.list', category=cat_id or None, q=keyword or None, sort='newest') }}" class="filter-tab {% if sort == 'newest' %}active{% endif %}">最新</a>
+        </div>
+      </div>
+
+      {% if products %}
+      <div class="products-grid mb-4">
+        {% for p in products %}
+        <a href="{{ url_for('shop.detail', product_id=p.id) }}" class="product-card">
+          <div class="position-relative">
+            {% if p.image_url %}
+            <img src="{{ p.image_url }}" class="product-img" alt="{{ p.name }}">
+            {% else %}
+            <div class="product-img-placeholder">🐾</div>
+            {% endif %}
+            {% if p.is_featured %}<span class="product-tag featured">精选</span>{% endif %}
+            {% if p.original_price and p.original_price > p.price %}
+            {% set discount = ((1 - p.price / p.original_price) * 100)|int %}
+            <span class="product-tag" style="left:auto;right:8px;">{{ discount }}%OFF</span>
+            {% endif %}
+          </div>
+          <div class="product-body">
+            {% if p.category %}<div class="badge-category mb-1">{{ p.category.name }}</div>{% endif %}
+            <div class="product-name">{{ p.name }}</div>
+            {% if p.brand %}<div class="product-brand">{{ p.brand }}</div>{% endif %}
+            <div class="product-price">
+              ¥{{ "%.2f"|format(p.price) }}
+              {% if p.original_price and p.original_price > p.price %}
+              <span class="original">¥{{ "%.2f"|format(p.original_price) }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+      {% else %}
+      <div class="text-center py-5">
+        <div style="font-size:4rem;margin-bottom:12px;">🔍</div>
+        <h5 class="text-muted">没有找到相关商品</h5>
+        <a href="{{ url_for('shop.list') }}" class="btn btn-outline-primary mt-2">查看全部商品</a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

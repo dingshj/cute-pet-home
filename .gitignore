@@ -1,0 +1,10 @@
+instance/*.db
+instance/breed_classifier.pt
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.env

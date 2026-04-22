@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}{{ '编辑' if pet else '新增' }}宠物档案{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>{{ '✏️' if pet else '➕' }} {{ '编辑宠物档案' if pet else '新增宠物档案' }}</h1>
+    <p>{{ '修改宠物信息' if pet else '为新宠物建立档案' }}</p>
+  </div>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-icon">{{ '✏️' if pet else '➕' }}</div>
+        {{ '编辑宠物' if pet else '新建宠物档案' }}
+      </div>
+      <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <label class="form-label">宠物名称 *</label>
+              <input type="text" name="name" class="form-control" required value="{{ pet.name if pet else '' }}" placeholder="例如：豆豆">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">物种 *</label>
+              <select name="species" class="form-select" required>
+                <option value="狗" {% if pet and pet.species=='狗' %}selected{% endif %}>🐶 狗</option>
+                <option value="猫" {% if pet and pet.species=='猫' %}selected{% endif %}>🐱 猫</option>
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">品种</label>
+              <input type="text" name="breed" class="form-control" value="{{ pet.breed if pet else breed or '' }}" placeholder="例如：泰迪">
+              <div class="form-text">留空则可在识别页面自动填入</div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">主人姓名</label>
+              <input type="text" name="owner_name" class="form-control" value="{{ pet.owner_name if pet else '' }}" placeholder="例如：张三">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">联系电话</label>
+              <input type="tel" name="owner_phone" class="form-control" value="{{ pet.owner_phone if pet else '' }}" placeholder="例如：13800138000">
+            </div>
+            <div class="col-12">
+              <label class="form-label">照片</label>
+              <input type="file" name="photo" class="form-control" accept="image/*">
+              {% if pet and pet.photo_filename %}
+              <div class="mt-2">
+                <img src="{{ url_for('static', filename='uploads/' + pet.photo_filename) }}" style="height:80px;border-radius:var(--radius-sm);">
+              </div>
+              {% endif %}
+            </div>
+            <div class="col-12">
+              <label class="form-label">备注</label>
+              <textarea name="notes" class="form-control" rows="3" placeholder="其他备注信息">{{ pet.notes if pet else '' }}</textarea>
+            </div>
+            <div class="col-12">
+              <hr>
+              <div class="fw-bold mb-2" style="font-size:0.9rem;color:var(--text-secondary);">领养信息（可选）</div>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">领养状态</label>
+              <select name="adoption_status" class="form-select">
+                <option value="available" {% if pet and pet.adoption_status=='available' %}selected{% endif %}>待领养</option>
+                <option value="adopting" {% if pet and pet.adoption_status=='adopting' %}selected{% endif %}>领养中</option>
+                <option value="adopted" {% if pet and pet.adoption_status=='adopted' %}selected{% endif %}>已领养</option>
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label">领养费</label>
+              <input type="number" step="0.01" name="adoption_fee" class="form-control" value="{{ pet.adoption_fee if pet and pet.adoption_fee else '' }}" placeholder="0 表示免费">
+            </div>
+            <div class="col-12">
+              <label class="form-label">领养说明</label>
+              <textarea name="adoption_description" class="form-control" rows="2" placeholder="描述宠物的性格、习惯等">{{ pet.adoption_description if pet else '' }}</textarea>
+            </div>
+          </div>
+          <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">{{ '保存修改' if pet else '创建档案' }}</button>
+            <a href="{{ url_for('pets.list_pets') }}" class="btn btn-outline-secondary">取消</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

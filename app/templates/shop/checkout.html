@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}确认订单 - 宠物商城{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div class="container">
+    <h1>📦 确认订单</h1>
+    <p>请填写收货信息</p>
+  </div>
+</div>
+
+<div class="container">
+  <form method="post">
+    <div class="row g-4">
+      <!-- 商品清单 -->
+      <div class="col-lg-7">
+        <div class="card mb-4">
+          <div class="card-header">
+            <div class="card-header-icon">🛍️</div>
+            商品清单
+          </div>
+          <div class="card-body" style="padding:0;">
+            {% for item in cart_items %}
+            <div style="display:flex;align-items:center;padding:12px 20px;border-bottom:1px solid #f1f5f9;gap:12px;">
+              {% if item.product.image_url %}
+              <img src="{{ item.product.image_url }}" style="width:56px;height:56px;object-fit:cover;border-radius:var(--radius-sm);flex-shrink:0;">
+              {% else %}
+              <div style="width:56px;height:56px;background:#f1f5f9;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:#ccc;flex-shrink:0;">🐾</div>
+              {% endif %}
+              <div style="flex-grow:1;min-width:0;">
+                <div style="font-weight:600;font-size:0.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.product.name }}</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);">× {{ item.quantity }}</div>
+              </div>
+              <div class="fw-bold text-danger" style="flex-shrink:0;">¥{{ "%.2f"|format(item.item_total) }}</div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-header-icon">📍</div>
+            收货信息
+          </div>
+          <div class="card-body">
+            <div class="mb-3">
+              <label class="form-label">收货人姓名 *</label>
+              <input type="text" name="user_name" class="form-control" required value="{{ user_name }}" placeholder="请输入收货人姓名">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">联系电话 *</label>
+              <input type="tel" name="user_phone" class="form-control" required value="{{ user_phone }}" placeholder="请输入手机号码">
+            </div>
+            <div class="mb-3">
+              <label class="form-label">收货地址 *</label>
+              <input type="text" name="user_address" class="form-control" required value="{{ user_address }}" placeholder="请输入详细收货地址">
+            </div>
+            <div>
+              <label class="form-label">订单备注</label>
+              <input type="text" name="remark" class="form-control" value="{{ remark }}" placeholder="可选，例如：节假日请勿配送">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 订单摘要 -->
+      <div class="col-lg-5">
+        <div class="order-summary-card">
+          <div class="sidebar-title">💰 订单金额</div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.88rem;">
+            <span style="color:var(--text-muted);">商品总价</span>
+            <span class="fw-bold">¥{{ "%.2f"|format(total) }}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;font-size:0.88rem;">
+            <span style="color:var(--text-muted);">运费</span>
+            <span style="color:var(--accent);font-weight:600;">免运费</span>
+          </div>
+          <div class="summary-total">
+            <span class="label">应付总额</span>
+            <span class="value">¥{{ "%.2f"|format(total) }}</span>
+          </div>
+          <button type="submit" class="btn btn-primary w-100 mt-3" style="padding:13px;border-radius:var(--radius-pill);font-weight:700;font-size:1rem;">
+            提交订单
+          </button>
+          <p style="text-align:center;margin-top:8px;margin-bottom:0;font-size:0.78rem;color:var(--text-muted);">
+            点击提交即表示同意购物协议
+          </p>
+        </div>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}
